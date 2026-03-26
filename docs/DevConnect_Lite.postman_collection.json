@@ -1,0 +1,315 @@
+{
+  "info": {
+    "_postman_id": "8e7f66c6-6a3a-4b22-bf5e-d4f8a82d4f2f",
+    "name": "DevConnect Lite API",
+    "description": "Postman collection for DevConnect Lite (TypeScript + Express + MongoDB).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "userId",
+      "value": ""
+    },
+    {
+      "key": "targetUserId",
+      "value": ""
+    },
+    {
+      "key": "fromUserId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Check API health status."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "if (json?.data?.token) pm.collectionVariables.set('token', json.data.token);",
+                  "if (json?.data?.user?.id) pm.collectionVariables.set('userId', json.data.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane Dev\",\n  \"email\": \"jane@example.com\",\n  \"password\": \"strongpassword\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Register a new user and store token/userId in collection variables."
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "if (json?.data?.token) pm.collectionVariables.set('token', json.data.token);",
+                  "if (json?.data?.user?.id) pm.collectionVariables.set('userId', json.data.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"jane@example.com\",\n  \"password\": \"strongpassword\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Login and store token/userId in collection variables."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Profiles",
+      "item": [
+        {
+          "name": "Upsert My Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bio\": \"Backend engineer focused on TypeScript and APIs\",\n  \"skills\": [\"TypeScript\", \"Node.js\", \"MongoDB\"],\n  \"experienceYears\": 4,\n  \"githubUsername\": \"janedev\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/profiles/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "profiles", "me"]
+            },
+            "description": "Create or update profile for authenticated user."
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/profiles/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "profiles", "me"]
+            },
+            "description": "Get profile for authenticated user."
+          },
+          "response": []
+        },
+        {
+          "name": "Search Profiles By Skills",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/profiles/search?skills=typescript,node.js&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "profiles", "search"],
+              "query": [
+                {
+                  "key": "skills",
+                  "value": "typescript,node.js"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Search profiles by required skills with pagination."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Connections",
+      "item": [
+        {
+          "name": "Send Connection Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/connections/request/{{targetUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "connections", "request", "{{targetUserId}}"]
+            },
+            "description": "Send a connection request to target user. Set targetUserId variable first."
+          },
+          "response": []
+        },
+        {
+          "name": "Accept Connection Request",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/connections/accept/{{fromUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "connections", "accept", "{{fromUserId}}"]
+            },
+            "description": "Accept a pending request from fromUserId."
+          },
+          "response": []
+        },
+        {
+          "name": "Reject Connection Request",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/connections/reject/{{fromUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "connections", "reject", "{{fromUserId}}"]
+            },
+            "description": "Reject a pending request from fromUserId."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Incoming Requests",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/connections/incoming",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "connections", "incoming"]
+            },
+            "description": "List incoming pending requests for the authenticated user."
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Connections",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/connections",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "connections"]
+            },
+            "description": "List accepted connections for the authenticated user."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
